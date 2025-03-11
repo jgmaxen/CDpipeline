@@ -21,14 +21,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install wait-on
-        run: npm install -g wait-on
-
       - name: Start the application
         run: npm start & # Runs in the background
 
       - name: Wait for server to be ready
-        run: wait-on http://localhost:3001
+        run: |
+          echo "Waiting for server to start..."
+          sleep 15 # Increase if needed
+          curl -I http://localhost:3001 || exit 1
 
       - name: Run Cypress tests
-        run: npx cypress run --config video=false --browser chrome --headless
+        run: npx cypress run
