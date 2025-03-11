@@ -1,8 +1,20 @@
+import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+
 dotenv.config();
 
-import mongoose from 'mongoose';
+const MONGO_URI: string | undefined = process.env.MONGO_URI;
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/techquiz');
+if (!MONGO_URI) {
+  console.error(" MONGO_URI is not defined! Ensure it's set in Render's environment variables.");
+  process.exit(1);
+}
+
+mongoose.connect(MONGO_URI)
+  .then(() => console.log(' Connected to MongoDB Atlas - cleanDB'))
+  .catch((err) => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+  });
 
 export default mongoose.connection;
