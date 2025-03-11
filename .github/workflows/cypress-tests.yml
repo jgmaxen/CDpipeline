@@ -21,6 +21,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Build the server
+        run: |
+          cd server
+          npm run build
+          cd ..
+
       - name: Start the application
         run: npm start & # Runs in the background
 
