@@ -9,6 +9,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      MONGO_URI: "mongodb+srv://jgmaxen:Oprah1313@cluster0.mdgzw.mongodb.net/cleanDb?retryWrites=true&w=majority"
+      CYPRESS_BASE_URL: "http://localhost:3001" # Ensure Cypress gets the correct base URL
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -21,14 +25,28 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install wait-on
-        run: npm install -g wait-on
+      - name: Build the server
+        run: |
+          cd server
+          npm run build
+          cd ..
 
       - name: Start the application
         run: npm start & # Runs in the background
 
       - name: Wait for server to be ready
-        run: wait-on http://localhost:3001
+        run: |
+          echo "Waiting for server to start..."
+          for i in {1..30}; do
+            if curl --output /dev/null --silent --head --fail http://localhost:3001; then
+              echo "Server is up!"
+              exit 0
+            fi
+            echo "Waiting for server..."
+            sleep 3
+          done
+          echo " Server did not start in time"
+          exit 1
 
       - name: Run Cypress tests
-        run: npx cypress run --config video=false --browser chrome --headless
+        run: npx cypress run
